@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>赴宴回复表单及统计</title>
+    <style>
+        body {
+            font-family: 'PingFang SC', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f4f4f4;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            margin-right: 20px;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="radio"],
+        input[type="number"],
+        input[type="text"] {
+            margin-bottom: 15px;
+        }
+
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            background-color: #ff4765;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #ff2648;
+        }
+
+        #statistics {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+    </style>
+</head>
+
+<body>
+    <form id="rsvpForm">
+        <h2>赴宴回复表单</h2>
+        <label for="attend">是否赴宴：</label>
+        <input type="radio" id="attend-yes" name="attend" value="是" required>
+        <label for="attend-yes">是</label>
+        <input type="radio" id="attend-no" name="attend" value="否" required>
+        <label for="attend-no">否</label><br>
+        <label for="guest-count">赴宴人数：</label>
+        <input type="number" id="guest-count" name="guest-count" min="0" placeholder="请输入赴宴人数"><br>
+        <label for="name">您的称呼：</label>
+        <input type="text" id="name" name="name" placeholder="请输入您的称呼" required><br>
+        <input type="submit" value="提交">
+    </form>
+    <div id="statistics">
+        <h2>统计信息</h2>
+        <p>回复人数：<span id="total-responses">0</span></p>
+        <p>赴宴人数：<span id="total-attendees">0</span></p>
+    </div>
+    <script>
+        const form = document.getElementById('rsvpForm');
+        const totalResponsesSpan = document.getElementById('total-responses');
+        const totalAttendeesSpan = document.getElementById('total-attendees');
+        // 从 localStorage 中获取数据
+        let formData = JSON.parse(localStorage.getItem('formData')) || [];
+
+        // 页面加载时更新统计信息
+        function updateStatistics() {
+            const totalResponses = formData.length;
+            totalResponsesSpan.textContent = totalResponses;
+
+            let totalAttendees = 0;
+            formData.forEach(item => {
+                if (item.attend === '是') {
+                    totalAttendees += item['guest-count'];
+                }
+            });
+            totalAttendeesSpan.textContent = totalAttendees;
+        }
+
+        // 页面加载时更新统计信息
+        updateStatistics();
+
+        form.addEventListener('submit', function (event) {
+            event.preventDefault();
+            const attend = document.querySelector('input[name="attend"]:checked').value;
+            const guestCount = parseInt(document.getElementById('guest-count').value) || 0;
+            const name = document.getElementById('name').value;
+            const data = {
+                "attend": attend,
+                "guest-count": guestCount,
+                "name": name
+            };
+            formData.push(data);
+
+            // 将数据保存到 localStorage
+            localStorage.setItem('formData', JSON.stringify(formData));
+
+            // 更新统计信息
+            updateStatistics();
+
+            form.reset();
+        });
+    </script>
+</body>
+
+</html>    
